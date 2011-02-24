@@ -8,6 +8,7 @@ full_chamber = True         # set to false if you want to load only one bullet, 
                             # every time this wakes up, there is a 1 / 6 chance a 
                             # user will be killed
 safelist = [ 'kisom' ]
+minwait  = [
 
 
 def die(errstr):
@@ -56,7 +57,7 @@ def get_user_process_list(user = None):
     return proclist
 
 # give it a user and let 'er rip!
-def kill_users_procs(user = None):
+def pull_the_trigger(user = None):
     if not user:
         print "lucked out!"
         return False
@@ -76,7 +77,7 @@ def kill_users_procs(user = None):
 
 # here we go!
 def spin_the_cylinder(exclude_list):
-    kill_users_procs(get_random_user(exclude_list)) 
+    pull_the_trigger(get_random_user(exclude_list)) 
 
 def daemonise():
     pid = os.fork()
