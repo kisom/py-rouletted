@@ -4,7 +4,7 @@
 # note (and this may be important): there is a signal handler for SIGUSR1 to kill
 # the daemon. this is how you prevent skynet from taking over.
 
-# license: public domain
+# license: public domain / ISC dual-licensed, pick whichever you want.
 # disclaimer: in case you are from a culture that is not familiar with the concept of
 # russian roulette, I strongly recommend you delete this code and familiarise yourself
 # with the 'game'. 
