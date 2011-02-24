@@ -145,7 +145,7 @@ def daemonise():
         sys.exit(1) 
 
     # set signal handlers
-    signal.signal(signal.SIGUSER1, die_handler)
+    signal.signal(signal.SIGUSR1, die_handler)
 
     # start the daemon main loop
     main() 
