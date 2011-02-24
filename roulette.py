@@ -17,6 +17,7 @@
 
 import os
 import random
+import signal
 import subprocess
 import sys
 import time
