@@ -1,3 +1,4 @@
+import os
 import random
 import subprocess
 import sys
@@ -6,6 +7,7 @@ import sys
 full_chamber = True         # set to false if you want to load only one bullet, aka
                             # every time this wakes up, there is a 1 / 6 chance a 
                             # user will be killed
+safelist = [ 'kisom' ]
 
 
 def die(errstr):
@@ -46,7 +48,7 @@ def get_user_process_list(user = None):
     if not user:
         die('try passing a user?')
 
-    cmd = 'pgrep -U %s | xargs' % user
+    command = 'pgrep -U %s | xargs' % user
 
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     proclist = p.communicate()[0].strip()
@@ -56,22 +58,28 @@ def get_user_process_list(user = None):
 # give it a user and let 'er rip!
 def kill_users_procs(user = None):
     if not user:
-        die('you probably shouldn\'t be running this...')
+        print "lucked out!"
+        return False
 
     proclist = get_user_process_list(user)
+    command = 'kill -9 %s' % (proclist, )
+
+    print command
+
     p = subprocess.Popen(command, shell=True)
     retval = os.waitpid(p.pid, 0)[1]            # get return code
 
     if retval:
-        print "pkill returned $d..." % retval
+        print "pkill returned %d..." % retval
     else:
         print "%s was killed!" % user
 
 # here we go!
 def spin_the_cylinder(exclude_list):
-    kill_users_procs(user) 
+    kill_users_procs(get_random_user(exclude_list)) 
 
-print get_random_user(['kisom'])
+def main():
+    spin_the_cylinder(safelist)
 
 
-
+main()
