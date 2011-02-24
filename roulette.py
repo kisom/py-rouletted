@@ -11,8 +11,8 @@ full_chamber = True         # set to false if you want to load only one bullet, 
                             # every time this wakes up, there is a 1 / 6 chance a 
                             # user will be killed
 safelist = [ 'kisom' ]
-minwait  = 3600;            # one hour minimum between cylinder spinning
-maxwait  = 84600;           # one day maximum between cylinder spinning
+minwait  = 30;            # one hour minimum between cylinder spinning
+maxwait  = 90;            # one day maximum between cylinder spinning
 
 
 def die(errstr):
@@ -125,6 +125,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
-    sys.exit(0)
     daemonise()
