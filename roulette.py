@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+# IN CASE OF SKYNET:
+# note (and this may be important): there is a signal handler for SIGUSR1 to kill
+# the daemon. this is how you prevent skynet from taking over.
+
 import os
 import random
 import subprocess
@@ -129,6 +133,7 @@ def daemonise():
         sys.exit(1) 
 
     # set signal handlers
+    signal.signal(signal.SIGUSER1, die_handler)
 
     # start the daemon main loop
     main() 
