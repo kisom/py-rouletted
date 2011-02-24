@@ -45,17 +45,15 @@ def die(errstr):
 # of this little game.
 def get_random_user(exclude_list = None):
 
-    # lteo requested the ability to narrow down the kill pool; if the problem_children
-    # list is not None, our userlist is the list of problem_children
-    if problem_children:
-        userlist = problem_children[:]
-    # if there isn't a problem_children list select from the list of logged in users
-    else:
-        command = "who | awk '{ print $1 }' | uniq | xargs" 
-        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-        userlist = p.communicate()[0].split()
+    command = "who | awk '{ print $1 }' | uniq | xargs" 
+    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    userlist = p.communicate()[0].split()
 
     # filter the list of users
+    # lteo requested the ability to narrow down the kill pool
+    # first pick the users out of the list of problem children
+    if problem_children:
+        userlist = [ user for user in userlist if user and user in problem_children ]
     # if there is a safe list, remove any entries from that list
     if exclude_list:
         userlist = [ user for user in userlist if user and not user in exclude_list ]
@@ -95,7 +93,7 @@ def get_user_process_list(user = None):
 
 # give it a user and let 'er rip!
 def pull_the_trigger(user = None):
-    if not user:
+    if not user or proclist:
         print "lucked out!"
         return False
 
@@ -161,4 +159,5 @@ def main():
 
 
 if __name__ == '__main__':
+    problem_children = [ 'testuser1', 'testuser3' ]
     daemonise()
