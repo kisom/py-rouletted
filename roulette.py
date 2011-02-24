@@ -1,14 +1,18 @@
+#!/usr/bin/env python
+
 import os
 import random
 import subprocess
 import sys
+import time
 
 # global options
 full_chamber = True         # set to false if you want to load only one bullet, aka
                             # every time this wakes up, there is a 1 / 6 chance a 
                             # user will be killed
 safelist = [ 'kisom' ]
-minwait  = [
+minwait  = 3600;            # one hour minimum between cylinder spinning
+maxwait  = 84600;           # one day maximum between cylinder spinning
 
 
 def die(errstr):
@@ -80,11 +84,13 @@ def spin_the_cylinder(exclude_list):
     pull_the_trigger(get_random_user(exclude_list)) 
 
 def daemonise():
-    pid = os.fork()
-    if pid > 0: sys.exit(0)
-
     # taken from http://code.activestate.com/recipes/66012/ because it was faster
     # than rewriting the code I've done in C a million times
+
+    try:
+        pid = os.fork()
+        if pid > 0: sys.exit(0)
+
     except OSError, e: 
         print >>sys.stderr, "fork #1 failed: %d (%s)" % (e.errno, e.strerror) 
         sys.exit(1)
@@ -110,8 +116,15 @@ def daemonise():
 
 
 def main():
-    spin_the_cylinder(safelist)
+    while True:
+        delay = random.randrange(minwait, maxwait)
+        print "sleep for %d seconds..." % delay
+        time.sleep(delay)
+        spin_the_cylinder(safelist)
+
 
 
 if __name__ == '__main__':
+    main()
+    sys.exit(0)
     daemonise()
