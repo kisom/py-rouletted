@@ -4,6 +4,17 @@
 # note (and this may be important): there is a signal handler for SIGUSR1 to kill
 # the daemon. this is how you prevent skynet from taking over.
 
+# license: public domain
+# disclaimer: in case you are from a culture that is not familiar with the concept of
+# russian roulette, I strongly recommend you delete this code and familiarise yourself
+# with the 'game'. 
+#
+# DISCLAIMER: this will (most-likely) cause order and respect among your user base,
+# especially when the script starts killing off problem children. however, your 
+# kingdom / server is yours to run, and not my problem. this is released under the
+# ISC license. the LICENSE file should have been distributed with this software. read
+# it.
+
 import os
 import random
 import subprocess
