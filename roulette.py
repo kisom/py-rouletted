@@ -30,7 +30,9 @@ debug    = False
 safelist = [ 'kisom' ]          # users not to kill
 problem_children = None         # user list to serve as the pool
 minwait  = 30;                  # one hour minimum between cylinder spinning
-maxwait  = 90;                  # one day maximum between cylinder spinning
+maxwait  = 45;                  # one day maximum between cylinder spinning
+logfile  = '/var/log/rouletted.log'
+logfd    = None
 
 def die_handler(signum, frame):
     die('received signal %d' % signum)
@@ -93,14 +95,15 @@ def get_user_process_list(user = None):
 
 # give it a user and let 'er rip!
 def pull_the_trigger(user = None):
-    if not user or proclist:
+    if not user:
         print "lucked out!"
         return False
 
     proclist = get_user_process_list(user)
+    if not proclist:
+        print 'lucked out!'
+        return False
     command = 'kill -9 %s' % (proclist, )
-
-    print command
 
     p = subprocess.Popen(command, shell=True)
     retval = os.waitpid(p.pid, 0)[1]            # get return code
@@ -115,6 +118,7 @@ def spin_the_cylinder(exclude_list):
     pull_the_trigger(get_random_user(exclude_list)) 
 
 def daemonise():
+    global logfd
     # taken from http://code.activestate.com/recipes/66012/ because it was faster
     # than rewriting the code I've done in C a million times
 
@@ -136,7 +140,7 @@ def daemonise():
         pid = os.fork() 
         if pid > 0:
             # exit from second parent, print eventual PID before
-            print "Daemon PID %d" % pid 
+            # print "Daemon PID %d" % pid 
             sys.exit(0) 
     except OSError, e: 
         print >>sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror) 
@@ -144,6 +148,12 @@ def daemonise():
 
     # set signal handlers
     signal.signal(signal.SIGUSR1, die_handler)
+    openlog()
+
+    os.dup2(logfd, 0)
+    os.dup2(logfd, 1)
+    os.dup2(logfd, 2)
+    print "PID: %d" % os.getpid()
 
     # start the daemon main loop
     main() 
@@ -156,7 +166,13 @@ def main():
         time.sleep(delay)
         spin_the_cylinder(safelist)
 
-
+def openlog():
+    global logfd
+    try:
+        logfd = os.open(logfile, os.O_RDWR)
+    except IOError, e:
+        print "error: ", e
+        die('error opening log!')
 
 if __name__ == '__main__':
     problem_children = [ 'testuser1', 'testuser3' ]
