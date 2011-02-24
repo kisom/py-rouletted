@@ -33,7 +33,7 @@ minwait  = 30;                  # one hour minimum between cylinder spinning
 maxwait  = 90;                  # one day maximum between cylinder spinning
 
 def die_handler(signum, frame):
-    die('received signal %d' % signal)
+    die('received signal %d' % signum)
 
 def die(errstr):
     if errstr:
