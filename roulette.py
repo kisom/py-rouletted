@@ -7,13 +7,17 @@ import sys
 import time
 
 # global options
-full_chamber = True         # set to false if you want to load only one bullet, aka
-                            # every time this wakes up, there is a 1 / 6 chance a 
-                            # user will be killed
-safelist = [ 'kisom' ]
-minwait  = 30;            # one hour minimum between cylinder spinning
-maxwait  = 90;            # one day maximum between cylinder spinning
+full_chamber = True             # set to false if you want to load only one bullet, aka
+                                # every time this wakes up, there is a 1 / 6 chance a 
+                                # user will be killed
+debug    = False
+safelist = [ 'kisom' ]          # users not to kill
+problem_children = None         # user list to serve as the pool
+minwait  = 30;                  # one hour minimum between cylinder spinning
+maxwait  = 90;                  # one day maximum between cylinder spinning
 
+def die_handler(signum, frame):
+    die('received signal %d' % signal)
 
 def die(errstr):
     if errstr:
@@ -24,23 +28,36 @@ def die(errstr):
 # to not kill. note this only kills users logged in interactively, which is the point
 # of this little game.
 def get_random_user(exclude_list = None):
-    command = "who | awk '{ print $1 }' | uniq | xargs" 
 
-    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    # lteo requested the ability to narrow down the kill pool; if the problem_children
+    # list is not None, our userlist is the list of problem_children
+    if problem_children:
+        userlist = problem_children[:]
+    # if there isn't a problem_children list select from the list of logged in users
+    else:
+        command = "who | awk '{ print $1 }' | uniq | xargs" 
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+        userlist = p.communicate()[0].split()
 
-    userlist = p.communicate()[0].split()
-
+    # filter the list of users
+    # if there is a safe list, remove any entries from that list
     if exclude_list:
         userlist = [ user for user in userlist if user and not user in exclude_list ]
+    # remove blank entries (the above case will remove blank entries as well)
     else:
         userlist = [ user for user in userlist if user ] # remove blank entries
 
+    # fail on an empty user list
     if not userlist:
         err = 'empty user list...'        
         if exclude_list:
             err += ' maybe try making the safe list a little less... safe?'
 
-        die(err)
+        # all user-based functions should expect to receive at some time the user
+        # None (for the case of a partially-filled chamber) so this should not 
+        # cause an error. just means we need to lurk and wait... to KILLLLL
+        if debug: die(err)
+        else: return None
 
     if full_chamber:
         return random.choice(userlist)
@@ -110,6 +127,8 @@ def daemonise():
     except OSError, e: 
         print >>sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror) 
         sys.exit(1) 
+
+    # set signal handlers
 
     # start the daemon main loop
     main() 
