@@ -1,0 +1,6 @@
+Inspired by talk in #devious, this is a valuable addition to any BOFH's toolkit.
+
+Randomly searches through a list of logged on users (optionally comparing to a
+group of users to exclude), and randomly kills that user's processes. Win!
+
+
